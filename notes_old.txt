@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# twitchIINABlackBox playirresponsibly bottom-left 600 300 0 20
+
+if [[ "$1" == *"twitch.tv"* ]]; then
+	url="$1"
+else
+	url="https://twitch.tv/$1"
+fi
+
+POSITION="$2"
+X_SIZE="$3"
+Y_SIZE="$4"
+X_OFFSET="${5:-0}"
+Y_OFFSET="${6:-0}"
+
+# Create a PNG image with the black box
+convert -size ${X_SIZE}x${Y_SIZE} xc:black black_box.png
+
+X=0
+Y=0
+case "$POSITION" in
+	"top-left")
+		X=$X_OFFSET
+		Y=$Y_OFFSET
+		;;
+	"top-right")
+		X="main_w-$X_SIZE-$X_OFFSET" # Subtract X offset here
+		Y=$Y_OFFSET
+		;;
+	"bottom-left")
+		X=$X_OFFSET
+		Y="main_h-$Y_SIZE-$Y_OFFSET" # Subtract Y offset here
+		;;
+	"bottom-right")
+		X="main_w-$X_SIZE-$X_OFFSET" # Subtract X offset here
+		Y="main_h-$Y_SIZE-$Y_OFFSET" # Subtract Y offset here
+		;;
+	*)
+		echo "Invalid position. Use top-left, top-right, bottom-left, or bottom-right."
+		exit 1
+		;;
+esac
+
+# yt-dlp \
+# --cookies="/Users/morpheous/Library/CloudStorage/Dropbox/Misc/Cookies/twitch_youtube.txt" \
+# -q -o - "$url" | ffmpeg -i - -i black_box.png -filter_complex "[0:v][1:v]overlay=$X:$Y" -c:v libx264 -c:a copy -f mpegts - | /Applications/IINA.app/Contents/MacOS/iina-cli --stdin
+
+# fast encoding preset
+
+# yt-dlp \
+# --cookies="/Users/morpheous/Library/CloudStorage/Dropbox/Misc/Cookies/twitch_youtube.txt" \
+# -q -o - "$url" | ffmpeg -i - -i black_box.png -filter_complex "[0:v][1:v]overlay=$X:$Y" -c:v libx264 -preset ultrafast -tune fastdecode -c:a copy -f mpegts - |
+# /Applications/IINA.app/Contents/MacOS/iina-cli  --stdin
+
+yt-dlp \
+--cookies="/Users/morpheous/Library/CloudStorage/Dropbox/Misc/Cookies/twitch_youtube.txt" \
+-q -o - "$url" | ffmpeg -i - -i black_box.png -filter_complex "[0:v][1:v]overlay=$X:$Y" -c:v libx264 -preset ultrafast -tune fastdecode -c:a copy -f hls -hls_time 4 -hls_list_size 10 -hls_segment_filename "stream%03d.ts" -hls_flags delete_segments stream.m3u8
+
+rm black_box.png

@@ -1,0 +1,29 @@
+https://www.tiktok.com/t/ZPRvTSNvH
+
+https://pull-hls-f16-va01.tiktokcdn.com/stage/stream-2996525957852168265_or4/index.m3u8
+
+yt-dlp \
+--cookies="/Users/morpheous/Library/CloudStorage/Dropbox/Misc/Cookies/twitch_youtube.txt" \
+-q -o - "$url" | ffmpeg -i - -c:v libx264 -preset ultrafast -tune fastdecode -c:a copy -f hls -hls_time 4 -hls_list_size 10 -hls_segment_filename "stream%03d.ts" -hls_flags delete_segments stream.m3u8
+
+
+ffmpeg \
+-i "https://pull-hls-f16-va01.tiktokcdn.com/stage/stream-2996525957852168265_or4/index.m3u8" \
+-c:v libx264 -preset ultrafast -tune fastdecode -c:a copy \
+-f hls -hls_time 4 -hls_list_size 10 -hls_segment_filename "stream%03d.ts" \
+-hls_flags delete_segments \
+stream.m3u8
+
+
+yt-dlp \
+--cookies="/Users/morpheous/Library/CloudStorage/Dropbox/Misc/Cookies/twitch_youtube.txt" \
+-g "https://www.tiktok.com/t/ZPRvTSNvH"
+
+yt-dlp \
+--cookies="/Users/morpheous/Library/CloudStorage/Dropbox/Misc/Cookies/twitch_youtube.txt" \
+-q -o - "https://www.tiktok.com/t/ZPRvTSNvH" | ffmpeg \
+-i - \
+-c:v libx264 -preset ultrafast -tune zerolatency -c:a copy \
+-f hls -hls_time 4 -hls_list_size 10 -hls_segment_filename "stream%03d.ts" \
+-hls_flags delete_segments \
+stream.m3u8
