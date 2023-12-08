@@ -1,84 +1,16 @@
 package server
 
 import (
-	// "fmt"
+	"fmt"
 	fiber "github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
+	"net/http"
+	// "path/filepath"
+	"os/exec"
 	// strconv "strconv"
 	// types "github.com/0187773933/ReStreamer/v1/types"
 	// bolt_api "github.com/boltdb/bolt"
 )
-
-// var ui_html_pages = map[ string ]string {
-// 	"/": "./v1/server/html/admin.html" ,
-// 	"/users": "./v1/server/html/admin_view_users.html" ,
-// 	// "/user/new": "./v1/server/html/admin_user_new.html" ,
-// 	"/user/new/handoff/:uuid": "./v1/server/html/admin_user_new_handoff.html" ,
-// 	"/user/checkin": "./v1/server/html/admin_user_checkin.html" ,
-// 	"/user/checkin/:uuid": "./v1/server/html/admin_user_checkin.html" ,
-// 	"/user/checkin/:uuid/edit": "./v1/server/html/admin_user_checkin.html" ,
-// 	"/user/checkin/new": "./v1/server/html/admin_user_checkin.html" ,
-// 	"/user/edit/:uuid": "./v1/server/html/admin_user_edit.html" ,
-// 	"/checkins": "./v1/server/html/admin_view_total_checkins.html" ,
-// 	"/emails": "./v1/server/html/admin_view_all_emails.html" ,
-// 	"/phone-numbers": "./v1/server/html/admin_view_all_phone_numbers.html" ,
-// 	"/barcodes": "./v1/server/html/admin_view_all_barcodes.html" ,
-// 	"/sms": "./v1/server/html/admin_sms_all_users.html" ,
-// 	"/email": "./v1/server/html/admin_email_all_users.html" ,
-// }
-
-// func ( s *Server ) PressButton( context *fiber.Ctx ) ( error ) {
-// 	if validate_admin( context ) == false { return serve_failed_attempt( context ) }
-
-// 	// s.UI.ActivePageID = "spotify-triple"
-// 	// s.UI.Render()
-
-// 	button_type := ""
-// 	button_int , button_int_err := strconv.Atoi( context.Params( "button" ) )
-// 	if button_int_err == nil {
-// 		// Check if the integer is within the uint8 range (0-255)
-// 		if button_int >= 0 && button_int <= 255 {
-// 			button_type = "number"
-// 		}
-// 	} else {
-// 		button_type = "string"
-// 	}
-
-// 	switch button_type {
-// 		case "number":
-// 			s.UI.SingleClickNumber( uint8( button_int ) )
-// 			break;
-// 		case "string":
-// 			s.UI.SingleClickId( context.Params( "button" ) )
-// 			break;
-// 	}
-
-// 	return context.JSON( fiber.Map{
-// 		"route": "/:button" ,
-// 		"type": button_type ,
-// 		"id": context.Params( "button" ) ,
-// 		"result": "success" ,
-// 	})
-// }
-
-// func ( s *Server ) RenderPage( context *fiber.Ctx ) ( error ) {
-// 	if validate_admin( context ) == false { return serve_failed_attempt( context ) }
-// 	page_id := context.Params( "id" )
-// 	s.UI.Clear()
-
-// 	// s.UI.SetActivePageID( string( page_id ) )
-// 	// race condition ????
-// 	s.UI.DB.Update( func( tx *bolt_api.Tx ) error {
-// 		tmp2_bucket , _ := tx.CreateBucketIfNotExists( []byte( "tmp2" ) )
-// 		tmp2_bucket.Put( []byte( "active-page-id" ) , []byte( page_id ) )
-// 		return nil
-// 	})
-// 	s.UI.Render()
-// 	return context.JSON( fiber.Map{
-// 		"route": "/page/:id" ,
-// 		"id": page_id ,
-// 		"result": "success" ,
-// 	})
-// }
 
 func ( s *Server ) Home( context *fiber.Ctx ) ( error ) {
 	return context.JSON( fiber.Map{
@@ -86,6 +18,24 @@ func ( s *Server ) Home( context *fiber.Ctx ) ( error ) {
 		"source": "https://github.com/0187773933/ReStreamer" ,
 		"result": "success" ,
 	})
+}
+
+func ( s *Server ) Test( context *fiber.Ctx ) ( error ) {
+    // tikTokURL := "https://pull-hls-f16-va01.tiktokcdn.com/stage/stream-2996525957852168265_or4/index.m3u8" // Replace with the actual URL
+    // tikTokURL := "https://www.tiktok.com/t/ZPRvTSNvH"
+
+    // Construct the command to use yt-dlp and FFmpeg for HLS
+    cmdString := "yt-dlp --cookies=/Users/morpheous/Library/CloudStorage/Dropbox/Misc/Cookies/twitch_youtube.txt -q -o - \"https://www.tiktok.com/t/ZPRvTSNvH\" | ffmpeg -i - -c:v libx264 -preset ultrafast -tune zerolatency -c:a copy -f hls -hls_time 4 -hls_list_size 10 -hls_segment_filename \"./hls-files/stream%03d.ts\" -hls_flags delete_segments ./hls-files/stream.m3u8"
+    fmt.Println( cmdString )
+
+    // Execute the command
+    cmd := exec.Command( "bash" , "-c" , cmdString )
+    if err := cmd.Run(); err != nil {
+        return err
+    }
+
+    // Redirect to the HLS playlist
+    return context.Redirect( "/hls/stream.m3u8" )
 }
 
 func ( s *Server ) SetupRoutes() {
@@ -99,6 +49,13 @@ func ( s *Server ) SetupRoutes() {
 	// }
 
 	s.FiberApp.Get( "/" , s.Home )
-	// s.FiberApp.Get( "/page/:id" , s.RenderPage )
+	s.FiberApp.Get( "/test" , s.Test )
+	s.FiberApp.Use( "/hls" , filesystem.New( filesystem.Config{
+		Root: http.Dir( "./hls-files" ) ,
+		Browse: false ,
+		Index: "" ,
+		MaxAge: 3600 ,
+		PathPrefix: "" ,
+	}))
 
 }
