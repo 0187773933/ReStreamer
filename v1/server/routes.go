@@ -24,8 +24,41 @@ func ( s *Server ) Test( context *fiber.Ctx ) ( error ) {
     // tikTokURL := "https://pull-hls-f16-va01.tiktokcdn.com/stage/stream-2996525957852168265_or4/index.m3u8" // Replace with the actual URL
     // tikTokURL := "https://www.tiktok.com/t/ZPRvTSNvH"
 
+    kill_ytdlp := exec.Command( "pkill" , "yt-dlp" )
+    kill_ytdlp.Run()
+
+    kill_ffmpeg := exec.Command( "pkill" , "ffmpeg" )
+    kill_ffmpeg.Run()
+
     // Construct the command to use yt-dlp and FFmpeg for HLS
-    cmdString := "yt-dlp --cookies=/Users/morpheous/Library/CloudStorage/Dropbox/Misc/Cookies/twitch_youtube.txt -q -o - \"https://www.tiktok.com/t/ZPRvTSNvH\" | ffmpeg -i - -c:v libx264 -preset ultrafast -tune zerolatency -c:a copy -f hls -hls_time 4 -hls_list_size 10 -hls_segment_filename \"./hls-files/stream%03d.ts\" -hls_flags delete_segments ./hls-files/stream.m3u8"
+    cmdString := "yt-dlp --cookies=/Users/morpheous/Library/CloudStorage/Dropbox/Misc/Cookies/twitch_youtube.txt -q -o - \"https://www.tiktok.com/t/ZPRcc7YkJ\" | ffmpeg -i - -c:v libx264 -preset ultrafast -tune zerolatency -c:a copy -f hls -hls_time 4 -hls_list_size 10 -hls_segment_filename \"./hls-files/stream%03d.ts\" -hls_flags delete_segments ./hls-files/stream.m3u8"
+    fmt.Println( cmdString )
+
+    // Execute the command
+    cmd := exec.Command( "bash" , "-c" , cmdString )
+    if err := cmd.Run(); err != nil {
+        return err
+    }
+
+    // Redirect to the HLS playlist
+    return context.Redirect( "/hls/stream.m3u8" )
+}
+
+func ( s *Server ) Que( context *fiber.Ctx ) ( error ) {
+    // tikTokURL := "https://pull-hls-f16-va01.tiktokcdn.com/stage/stream-2996525957852168265_or4/index.m3u8" // Replace with the actual URL
+    // tikTokURL := "https://www.tiktok.com/t/ZPRvTSNvH"
+
+	x_url := c.Params( "*" )
+	fmt.Sprintf( fmt.Sprintf( "ReStreamURL( %s )" , x_url ) )
+
+    kill_ytdlp := exec.Command( "pkill" , "yt-dlp" )
+    kill_ytdlp.Run()
+
+    kill_ffmpeg := exec.Command( "pkill" , "ffmpeg" )
+    kill_ffmpeg.Run()
+
+    // Construct the command to use yt-dlp and FFmpeg for HLS
+    cmdString := "yt-dlp --cookies=/Users/morpheous/Library/CloudStorage/Dropbox/Misc/Cookies/twitch_youtube.txt -q -o - \"" + x_url + "\" | ffmpeg -i - -c:v libx264 -preset ultrafast -tune zerolatency -c:a copy -f hls -hls_time 4 -hls_list_size 10 -hls_segment_filename \"./hls-files/stream%03d.ts\" -hls_flags delete_segments ./hls-files/stream.m3u8"
     fmt.Println( cmdString )
 
     // Execute the command
@@ -50,6 +83,7 @@ func ( s *Server ) SetupRoutes() {
 
 	s.FiberApp.Get( "/" , s.Home )
 	s.FiberApp.Get( "/test" , s.Test )
+	s.FiberApp.Get( "/que/url/*" , s.Que )
 	s.FiberApp.Use( "/hls" , filesystem.New( filesystem.Config{
 		Root: http.Dir( "./hls-files" ) ,
 		Browse: false ,
@@ -57,5 +91,4 @@ func ( s *Server ) SetupRoutes() {
 		MaxAge: 3600 ,
 		PathPrefix: "" ,
 	}))
-
 }
