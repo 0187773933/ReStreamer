@@ -47,9 +47,16 @@ func ( s *Server ) Test( context *fiber.Ctx ) ( error ) {
 func ( s *Server ) Que( context *fiber.Ctx ) ( error ) {
     // tikTokURL := "https://pull-hls-f16-va01.tiktokcdn.com/stage/stream-2996525957852168265_or4/index.m3u8" // Replace with the actual URL
     // tikTokURL := "https://www.tiktok.com/t/ZPRvTSNvH"
-
-	x_url := c.Params( "*" )
+	api_key := context.Query( "k" )
+	if api_key != s.Config.ServerAPIKey {
+		return context.Status( fiber.StatusUnauthorized ).SendString( "why" )
+	}
+	x_url := context.Params( "*" )
+	fmt.Println( api_key )
 	fmt.Sprintf( fmt.Sprintf( "ReStreamURL( %s )" , x_url ) )
+
+	rm_existing := exec.Command( "rm" , "-rf" , "./hls-files/*" )
+	rm_existing.Run()
 
     kill_ytdlp := exec.Command( "pkill" , "yt-dlp" )
     kill_ytdlp.Run()
