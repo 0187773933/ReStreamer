@@ -18,5 +18,5 @@ type ConfigFile struct {
 	TimeZone string `yaml:"time_zone"`
 	BoltDBPath string `yaml:"bolt_db_path"`
 	BoltDBEncryptionKey string `yaml:"bolt_db_encryption_key"`
-	StreamDeckUI interface{} `yaml:"stream_deck_ui"`
+	HLSURLPrefix string `yaml:"hls_url_prefix"`
 }
