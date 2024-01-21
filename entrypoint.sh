@@ -22,6 +22,6 @@ else
 	sudo chown -R morphs:morphs /home/morphs/ReStreamer
 	cd /home/morphs/ReStreamer
 	/usr/local/go/bin/go mod tidy
-	GOOS=linux GOARCH=amd64 /usr/local/go/bin/go build -o /home/morphs/StreamDeck/server
+	GOOS=linux GOARCH=amd64 /usr/local/go/bin/go build -o /home/morphs/ReStreamer/server
 	exec /home/morphs/ReStreamer/server "$@"
 fi

@@ -1,4 +1,4 @@
-FROM debian:stable-slim
+FROM ubuntu:latest
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update -y
 RUN apt-get install apt-transport-https -y
@@ -19,9 +19,10 @@ RUN apt-get install iproute2 -y
 RUN apt-get install bc -y
 RUN apt-get install pkg-config -y
 RUN apt-get install ffmpeg -y
+RUN apt-get install software-properties-common -y
 RUN add-apt-repository ppa:tomtomtom/yt-dlp
 RUN apt update
-RUN aptget install yt-dlp -y
+RUN apt-get install yt-dlp -y
 
 # Setup User
 ENV TZ="US/Eastern"

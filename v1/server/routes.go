@@ -83,7 +83,7 @@ func ( s *Server ) Que( context *fiber.Ctx ) ( error ) {
 func ( s *Server ) SetupRoutes() {
 	s.FiberApp.Get( "/" , public_limiter , s.Home )
 	s.FiberApp.Get( "/que/url/*" , public_limiter , s.Que )
-	s.FiberApp.Use( s.Config.HLSURLPrefix , filesystem.New( filesystem.Config{
+	s.FiberApp.Use( fmt.Sprintf( "/%s" , s.Config.HLSURLPrefix ) , filesystem.New( filesystem.Config{
 		Root: http.Dir( "./hls-files" ) ,
 		Browse: false ,
 		Index: "" ,
