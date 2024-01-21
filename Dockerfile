@@ -17,20 +17,11 @@ RUN apt-get install curl -y
 RUN apt-get install net-tools -y
 RUN apt-get install iproute2 -y
 RUN apt-get install bc -y
-RUN apt-get install libasound2-dev -y
-RUN apt-get install libhidapi-dev -y
-#RUN apt-get install udev -y
 RUN apt-get install pkg-config -y
-RUN apt-get install alsa-utils -y
-
-#RUN amixer sset Master 100%
-#RUN amixer sset Master unmute
-
-# Setup StreamDeck
-#RUN mkdir -p /etc/udev/rules.d
-#RUN echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="0fd9", ATTRS{idProduct}=="006d", MODE="0666", GROUP="morphs"' > /etc/udev/rules.d/99-streamdeck.rules
-#RUN udevadm control --reload-rules
-#RUN udevadm trigger
+RUN apt-get install ffmpeg -y
+RUN add-apt-repository ppa:tomtomtom/yt-dlp
+RUN apt update
+RUN aptget install yt-dlp -y
 
 # Setup User
 ENV TZ="US/Eastern"
@@ -41,9 +32,6 @@ RUN mkdir -p /home/$USERNAME
 RUN chown -R $USERNAME:$USERNAME /home/$USERNAME
 RUN usermod -aG sudo $USERNAME
 RUN echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-RUN usermod -a -G dialout $USERNAME
-RUN usermod -a -G audio $USERNAME
-#RUN chown morphs:morphs /dev/streamdeck
 USER $USERNAME
 
 # install go with specific version and progress
@@ -57,22 +45,20 @@ RUN echo "PATH=$PATH:/usr/local/go/bin" | tee -a /home/$USERNAME/.bashrc
 
 # prep files for building server binary
 USER root
-RUN mkdir /home/morphs/StreamDeckServer
-COPY . /home/morphs/StreamDeckServer
-RUN chown -R $USERNAME:$USERNAME /home/morphs/StreamDeckServer
+RUN mkdir /home/morphs/ReStreamer
+COPY . /home/morphs/ReStreamer
+RUN chown -R $USERNAME:$USERNAME /home/morphs/ReStreamer
 USER $USERNAME
 WORKDIR /home/$USERNAME
 
 # build server binary
 ARG GO_ARCH=amd64
-WORKDIR StreamDeckServer
+WORKDIR ReStreamer
 RUN /usr/local/go/bin/go mod tidy
-RUN GOOS=linux GOARCH=$GO_ARCH /usr/local/go/bin/go build -o /home/morphs/StreamDeckServer/server
-#ENTRYPOINT [ "/home/morphs/StreamDeckServer/server" ]
-#ENTRYPOINT [ "bash" ]
+RUN GOOS=linux GOARCH=$GO_ARCH /usr/local/go/bin/go build -o /home/morphs/ReStreamer/server
 
 USER root
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 USER $USERNAME
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT [ "/entrypoint.sh" ]

@@ -14,13 +14,7 @@ id=$(sudo docker run -dit \
 --name $APP_NAME \
 --restart='always' \
 --network=6105-buttons-1 \
---privileged \
---device=/dev/snd \
--v $(pwd)/SAVE_FILES:/home/morphs/SAVE_FILES:rw \
---mount type=bind,source="$(pwd)"/config.yaml,target=/home/morphs/StreamDeckServer/config.yaml \
--p 5953:5953 \
+--mount type=bind,source="$(pwd)"/config.yaml,target=/home/morphs/ReStreamer/config.yaml \
+-p 5955:5955 \
 $APP_NAME config.yaml)
 sudo docker logs -f $id
-
-
-#--device=/dev/streamdeck \
