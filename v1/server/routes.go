@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"time"
+	"os"
 	fiber "github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	rate_limiter "github.com/gofiber/fiber/v2/middleware/limiter"
@@ -51,6 +52,7 @@ func ( s *Server ) Que( context *fiber.Ctx ) ( error ) {
 	kill_ffmpeg.Run()
 
 	time.Sleep( 500 * time.Millisecond )
+	os.MkdirAll( "./hls-files" , os.ModePerm )
 	fmt.Println( "Removing Existing HLS Files" )
 	rm_existing := exec.Command( "bash" , "-c" , "rm -rf ./hls-files/*" )
 	rm_existing.Run()
