@@ -79,9 +79,31 @@ func ( s *Server ) Que( context *fiber.Ctx ) ( error ) {
 	})
 }
 
+func ( s *Server ) Stop( context *fiber.Ctx ) ( error ) {
+	api_key := context.Query( "k" )
+	if api_key != s.Config.ServerAPIKey {
+		return context.Status( fiber.StatusUnauthorized ).SendString( "why" )
+	}
+	fmt.Println( "Killing yt-dlp" )
+	kill_ytdlp := exec.Command( "pkill" , "yt-dlp" )
+	kill_ytdlp.Run()
+	fmt.Println( "Killing ffmpeg" )
+	kill_ffmpeg := exec.Command( "pkill" , "ffmpeg" )
+	kill_ffmpeg.Run()
+	time.Sleep( 500 * time.Millisecond )
+	fmt.Println( "Removing Existing HLS Files" )
+	rm_existing := exec.Command( "bash" , "-c" , "rm -rf ./hls-files/*" )
+	rm_existing.Run()
+	return context.JSON( fiber.Map{
+		"url": "/stop" ,
+		"result": true ,
+	})
+}
+
 func ( s *Server ) SetupRoutes() {
 	s.FiberApp.Get( "/" , public_limiter , s.Home )
 	s.FiberApp.Get( "/que/url/*" , public_limiter , s.Que )
+	s.FiberApp.Get( "/stop" , public_limiter , s.Stop )
 	s.FiberApp.Use( fmt.Sprintf( "/%s" , s.Config.HLSURLPrefix ) , filesystem.New( filesystem.Config{
 		Root: http.Dir( "./hls-files" ) ,
 		Browse: false ,
