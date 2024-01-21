@@ -49,16 +49,7 @@ USER root
 RUN mkdir /home/morphs/ReStreamer
 COPY . /home/morphs/ReStreamer
 RUN chown -R $USERNAME:$USERNAME /home/morphs/ReStreamer
-USER $USERNAME
 WORKDIR /home/$USERNAME
-
-# build server binary
-ARG GO_ARCH=amd64
-WORKDIR ReStreamer
-RUN /usr/local/go/bin/go mod tidy
-RUN GOOS=linux GOARCH=$GO_ARCH /usr/local/go/bin/go build -o /home/morphs/ReStreamer/server
-
-USER root
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 USER $USERNAME

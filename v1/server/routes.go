@@ -103,7 +103,7 @@ func ( s *Server ) Stop( context *fiber.Ctx ) ( error ) {
 }
 
 func ( s *Server ) SetupRoutes() {
-	s.FiberApp.Get( "/" , public_limiter , s.Home )
+	// s.FiberApp.Get( "/" , public_limiter , s.Home )
 	s.FiberApp.Get( "/que/url/*" , public_limiter , s.Que )
 	s.FiberApp.Get( "/stop" , public_limiter , s.Stop )
 	s.FiberApp.Use( fmt.Sprintf( "/%s" , s.Config.HLSURLPrefix ) , filesystem.New( filesystem.Config{
