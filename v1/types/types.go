@@ -19,4 +19,5 @@ type ConfigFile struct {
 	BoltDBPath string `yaml:"bolt_db_path"`
 	BoltDBEncryptionKey string `yaml:"bolt_db_encryption_key"`
 	HLSURLPrefix string `yaml:"hls_url_prefix"`
+	CookiesFilePath string `yaml:"cookies_file_path"`
 }

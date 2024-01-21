@@ -56,16 +56,15 @@ func ( s *Server ) Que( context *fiber.Ctx ) ( error ) {
 	rm_existing.Run()
 
 	fmt.Println( "getting live url" )
-	cookie_file_path := "/Users/morpheous/Library/CloudStorage/Dropbox/Misc/Cookies/twitch_youtube.txt"
-	// live_url_cmd_string := "yt-dlp --cookies=/Users/morpheous/Library/CloudStorage/Dropbox/Misc/Cookies/twitch_youtube.txt -q -o - \"" + x_url + "\""
-	// live_url_cmd := exec.Command( "bash" , "-c" , live_url_cmd_string )
-	live_url_cmd := exec.Command( "yt-dlp" , "--cookies" , cookie_file_path , "-g" , x_url )
+	var live_url_cmd *exec.Cmd
+	if s.Config.CookiesFilePath == "" {
+		live_url_cmd = exec.Command( "yt-dlp" , "--cookies" , cookie_file_path , "-g" , x_url )
+	} else {
+		live_url_cmd = exec.Command( "yt-dlp" , "-g" , x_url )
+	}
 	live_url_cmd_output , _ := live_url_cmd.Output()
 	live_url_cmd_output_string := strings.TrimSpace( string( live_url_cmd_output ) )
 	fmt.Println( live_url_cmd_output_string )
-
-	// cmdString := "yt-dlp --cookies=/Users/morpheous/Library/CloudStorage/Dropbox/Misc/Cookies/twitch_youtube.txt -q -o - \"" + x_url + "\" | ffmpeg -i - -c:v libx264 -preset ultrafast -tune zerolatency -c:a copy -f hls -hls_time 4 -hls_list_size 10 -hls_segment_filename \"./hls-files/stream%03d.ts\" -hls_flags delete_segments ./hls-files/stream.m3u8"
-	// fmt.Println( cmdString )
 
 	cmd_string := "ffmpeg -i \"" + live_url_cmd_output_string + "\" -c:v libx264 -preset ultrafast -tune zerolatency -c:a copy -f hls -hls_time 4 -hls_list_size 10 -hls_segment_filename \"./hls-files/stream%03d.ts\" -hls_flags delete_segments ./hls-files/stream.m3u8"
 	fmt.Println( cmd_string )
