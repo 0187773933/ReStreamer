@@ -58,7 +58,7 @@ func ( s *Server ) Que( context *fiber.Ctx ) ( error ) {
 	fmt.Println( "getting live url" )
 	var live_url_cmd *exec.Cmd
 	if s.Config.CookiesFilePath == "" {
-		live_url_cmd = exec.Command( "yt-dlp" , "--cookies" , cookie_file_path , "-g" , x_url )
+		live_url_cmd = exec.Command( "yt-dlp" , "--cookies" , s.Config.CookiesFilePath , "-g" , x_url )
 	} else {
 		live_url_cmd = exec.Command( "yt-dlp" , "-g" , x_url )
 	}
