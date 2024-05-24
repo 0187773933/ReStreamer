@@ -70,7 +70,7 @@ func ( s *Server ) Que( context *fiber.Ctx ) ( error ) {
 	fmt.Println( live_url_cmd_output_string )
 
 	stream_name := encryption.GenerateRandomString( 10 )
-	cmd_string := "ffmpeg -re -thread_queue_size 512 -i \"" + live_url_cmd_output_string + "\" -c:v libx264 -preset ultrafast -tune zerolatency -max_delay 5000000 -bufsize 5000000 -c:a copy -f hls -hls_time 10 -hls_list_size 10 -hls_segment_filename \"./hls-files/" + stream_name + "%03d.ts\" -hls_flags delete_segments ./hls-files/" + stream_name + ".m3u8"
+	cmd_string := "ffmpeg -re -thread_queue_size 512 -i \"" + live_url_cmd_output_string + "\" -c:v libx264 -preset ultrafast -tune zerolatency -max_delay 5000000 -bufsize 5000000 -c:a copy -f hls -hls_time 10 -hls_list_size 10 -hls_segment_filename \"./hls-files/" + stream_name + "-%03d.ts\" -hls_flags delete_segments ./hls-files/" + stream_name + ".m3u8"
 	fmt.Println( cmd_string )
 	cmd := exec.Command( "bash" , "-c" , cmd_string )
 	go cmd.Run()
