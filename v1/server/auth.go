@@ -34,7 +34,7 @@ func Logout( context *fiber.Ctx ) ( error ) {
 }
 
 // POST http://localhost:5950/admin/login
-func HandleLogin( context *fiber.Ctx ) ( error ) {
+func Login( context *fiber.Ctx ) ( error ) {
 	valid_login := validate_login_credentials( context )
 	if valid_login == false { return serve_failed_attempt( context ) }
 	context.Cookie(
@@ -87,6 +87,11 @@ func validate_admin( context *fiber.Ctx ) ( result bool ) {
 		}
 	}
 	return
+}
+
+func RenderLoginPage( context *fiber.Ctx ) ( error ) {
+	context.Set( "Content-Type" , "text/html" )
+	return context.SendFile( "./v1/server/html/login.html" )
 }
 
 // need somthing different for hls .ts parts

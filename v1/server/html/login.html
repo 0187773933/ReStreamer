@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>Master's Closet - Admin Login</title>
+		<title>ReStreamer Login</title>
 		<link rel="icon" href="">
 		<script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js" integrity="sha256-r9S9KZvN5nEN1voCkVbj4RdMSLwAa4qeujL5ZOWSN4M=" crossorigin="anonymous"></script>
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
@@ -10,10 +10,11 @@
 	<body>
 		<div class="container">
 			<div class="row">
-				<div class="col-sm">
-					<center><h1>Master's Closet - Admin Login</h1></center>
+				<div class="col-lg-3 col-md-0 col-sm-0 col-0"></div>
+				<div class="col-lg-6 col-md-12 col-sm-12 col-12">
+					<center><h1>ReStreamer Login</h1></center>
 					<br><br>
-					<form id="form-login" action="/admin/login" onSubmit="return on_submit()" method="post">
+					<form id="form-login" action="/login" onSubmit="return on_submit()" method="post">
 						<div class="form-row">
 							<div class="col">
 								<input type="text" class="form-control" placeholder="Username" name="username" required>
@@ -22,11 +23,13 @@
 								<input id="login-password" type="password" class="form-control" placeholder="Password" name="password" required>
 							</div>
 						</div>
+						<br>
 						<div class="form-row">
-							<button type="submit" class="btn btn-primary">Admin Login</button>
+							<center><button type="submit" class="btn btn-primary">Login</button></center>
 						</div>
 					</form>
 				</div>
+				<div class="col-lg-3 col-md-0 col-sm-0 col-0"></div>
 			</div>
 		</div>
 		<script>

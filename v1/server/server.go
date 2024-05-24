@@ -16,6 +16,8 @@ var GlobalConfig *types.ConfigFile
 type Server struct {
 	FiberApp *fiber.App `yaml:"fiber_app"`
 	Config types.ConfigFile `yaml:"config"`
+	QueInputUrl string `yaml:"que_input_url"`
+	QueStreamUrl string `yaml:"que_stream_url"`
 }
 
 func request_logging_middleware( context *fiber.Ctx ) ( error ) {
