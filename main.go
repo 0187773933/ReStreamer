@@ -22,12 +22,12 @@ func SetupCloseHandler() {
 		fmt.Println( "\r- Ctrl+C pressed in Terminal" )
 		fmt.Println( "Shutting Down Re-Streaming Server" )
 		s.FiberApp.Shutdown()
+		s.KillForkedProcesses()
 		os.Exit( 0 )
 	}()
 }
 
 func main() {
-
 	config_file_path := "./config.yaml"
 	if len( os.Args ) > 1 { config_file_path , _ = filepath.Abs( os.Args[ 1 ] ) }
 	config := utils.ParseConfig( config_file_path )
@@ -42,5 +42,4 @@ func main() {
 	// utils.GenerateNewKeys()
 	s = server.New( config )
 	s.Start()
-
 }

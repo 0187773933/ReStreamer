@@ -35,10 +35,7 @@ func ( s *Server ) Home( context *fiber.Ctx ) ( error ) {
 	})
 }
 
-func ( s *Server ) Que( context *fiber.Ctx ) ( error ) {
-	x_url := context.Params( "*" )
-	fmt.Printf( "ReStreamURL( %s )\n" , x_url )
-
+func ( s *Server ) KillForkedProcesses() {
 	fmt.Println( "Killing yt-dlp" )
 	kill_ytdlp := exec.Command( "pkill" , "yt-dlp" )
 	kill_ytdlp.Run()
@@ -52,6 +49,13 @@ func ( s *Server ) Que( context *fiber.Ctx ) ( error ) {
 	fmt.Println( "Removing Existing HLS Files" )
 	rm_existing := exec.Command( "bash" , "-c" , "rm -rf ./hls-files/*" )
 	rm_existing.Run()
+}
+
+func ( s *Server ) Que( context *fiber.Ctx ) ( error ) {
+	x_url := context.Params( "*" )
+	fmt.Printf( "ReStreamURL( %s )\n" , x_url )
+
+	s.KillForkedProcesses()
 
 	fmt.Println( "getting live url" )
 	var live_url_cmd *exec.Cmd
@@ -66,8 +70,7 @@ func ( s *Server ) Que( context *fiber.Ctx ) ( error ) {
 	fmt.Println( live_url_cmd_output_string )
 
 	stream_name := encryption.GenerateRandomString( 10 )
-	// cmd_string := "ffmpeg -i \"" + live_url_cmd_output_string + "\" -c:v libx264 -preset ultrafast -tune zerolatency -c:a copy -f hls -hls_time 4 -hls_list_size 10 -hls_segment_filename \"./hls-files/stream%03d.ts\" -hls_flags delete_segments ./hls-files/stream.m3u8"
-	cmd_string := "ffmpeg -i \"" + live_url_cmd_output_string + "\" -c:v libx264 -preset ultrafast -tune zerolatency -c:a copy -f hls -hls_time 4 -hls_list_size 10 -hls_segment_filename \"./hls-files/" + stream_name + "%03d.ts\" -hls_flags delete_segments ./hls-files/" + stream_name + ".m3u8"
+	cmd_string := "ffmpeg -re -thread_queue_size 512 -i \"" + live_url_cmd_output_string + "\" -c:v libx264 -preset ultrafast -tune zerolatency -max_delay 5000000 -bufsize 5000000 -c:a copy -f hls -hls_time 10 -hls_list_size 10 -hls_segment_filename \"./hls-files/" + stream_name + "%03d.ts\" -hls_flags delete_segments ./hls-files/" + stream_name + ".m3u8"
 	fmt.Println( cmd_string )
 	cmd := exec.Command( "bash" , "-c" , cmd_string )
 	go cmd.Run()
@@ -97,16 +100,7 @@ func ( s *Server ) QueGet( context *fiber.Ctx ) ( error ) {
 }
 
 func ( s *Server ) Stop( context *fiber.Ctx ) ( error ) {
-	fmt.Println( "Killing yt-dlp" )
-	kill_ytdlp := exec.Command( "pkill" , "yt-dlp" )
-	kill_ytdlp.Run()
-	fmt.Println( "Killing ffmpeg" )
-	kill_ffmpeg := exec.Command( "pkill" , "ffmpeg" )
-	kill_ffmpeg.Run()
-	time.Sleep( 500 * time.Millisecond )
-	fmt.Println( "Removing Existing HLS Files" )
-	rm_existing := exec.Command( "bash" , "-c" , "rm -rf ./hls-files/*" )
-	rm_existing.Run()
+	s.KillForkedProcesses()
 	s.QueInputUrl = ""
 	s.QueStreamUrl = ""
 	return context.JSON( fiber.Map{
