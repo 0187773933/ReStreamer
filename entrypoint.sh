@@ -9,6 +9,8 @@ if [ -f "$HASH_FILE" ]; then
 else
 	STORED_HASH=""
 fi
+sudo apt-get update
+sudo apt-get install yt-dlp -y --allow-downgrades --allow-change-held-packages
 if [ "$REMOTE_HASH" == "$STORED_HASH" ]; then
 	echo "No New Updates Available"
 	cd /home/morphs/ReStreamer
