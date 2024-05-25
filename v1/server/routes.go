@@ -14,7 +14,7 @@ import (
 )
 
 var public_limiter = rate_limiter.New( rate_limiter.Config{
-	Max: 1 ,
+	Max: 3 ,
 	Expiration: 1 * time.Second ,
 	KeyGenerator: func( c *fiber.Ctx ) string {
 		return c.Get( "x-forwarded-for" )
@@ -67,6 +67,17 @@ func ( s *Server ) Que( context *fiber.Ctx ) ( error ) {
 	fmt.Println( live_url_cmd )
 	live_url_cmd_output , _ := live_url_cmd.Output()
 	live_url_cmd_output_string := strings.TrimSpace( string( live_url_cmd_output ) )
+
+	if live_url_cmd_output_string == "" {
+		return context.JSON( fiber.Map{
+			"url": "/que/url/*" ,
+			"input_url": x_url ,
+			"live_url": "" ,
+			"stream_url": "" ,
+			"cmd_string": "" ,
+			"result": false ,
+		})
+	}
 	fmt.Println( live_url_cmd_output_string )
 
 	stream_name := encryption.GenerateRandomString( 10 )
