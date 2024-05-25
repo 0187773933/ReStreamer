@@ -119,6 +119,12 @@ func ( s *Server ) SetupRoutes() {
 	s.FiberApp.Get( "/que" , public_limiter , validate_admin_mw , s.QueGet )
 	s.FiberApp.Get( "/que/url/*" , public_limiter , validate_admin_mw , s.Que )
 	s.FiberApp.Get( "/stop" , public_limiter , validate_admin_mw , s.Stop )
+
+	// for internal "auth" routes
+	s.FiberApp.Get( "/i/:k/que" , public_limiter , validate_inernal_auth_mw , s.QueGet )
+	s.FiberApp.Get( "/i/:k/que/url/*" , public_limiter , validate_inernal_auth_mw , s.Que )
+	s.FiberApp.Get( "/i/:k/stop" , public_limiter , validate_inernal_auth_mw , s.Stop )
+
 	s.FiberApp.Use( fmt.Sprintf( "/%s" , s.Config.HLSURLPrefix ) , filesystem.New( filesystem.Config{
 		Root: http.Dir( "./hls-files" ) ,
 		Browse: false ,

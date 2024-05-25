@@ -21,6 +21,20 @@ func validate_login_credentials( context *fiber.Ctx ) ( result bool ) {
 	return
 }
 
+func validate_inernal_auth_mw( context *fiber.Ctx ) ( error ) {
+	k_param := context.Params( "k" )
+	if k_param == "" {
+		return context.Status( fiber.StatusUnauthorized ).SendString( "why" )
+	}
+	if len( k_param ) > 50 {
+		return context.Status( fiber.StatusUnauthorized ).SendString( "why" )
+	}
+	if k_param != GlobalConfig.ServerAPIKey {
+		return context.Status( fiber.StatusUnauthorized ).SendString( "why" )
+	}
+	return context.Next()
+}
+
 func Logout( context *fiber.Ctx ) ( error ) {
 	context.Cookie( &fiber.Cookie{
 		Name: GlobalConfig.ServerCookieName ,
